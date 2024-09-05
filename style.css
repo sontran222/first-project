@@ -1,0 +1,23 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body{
+    height: 100vh;
+    background: linear-gradient(30deg, #c5e9246e, #0be9b196);
+}
+
+textarea{
+    width: 100%;
+    border: none;
+    outline: none;
+    height: 100%;
+    background: rgba(9, 214, 136, 0.288);
+}
+
+td{
+    overflow-wrap: break-word; 
+    word-wrap: break-word; 
+}

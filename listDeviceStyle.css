@@ -1,0 +1,90 @@
+:root {
+  --red-blur: rgba(255, 166, 0, 0.5);
+  --red: rgb(255, 166, 0);
+}
+
+body {
+  height: 100vh;
+  position: relative;
+}
+.popUps {
+  position: fixed;
+  top: 80px;
+  right: 10px;
+}
+.popUp {
+  position: relative;
+  margin: 10px;
+  height: 80px;
+  width: 250px;
+  background-color: var(--red-blur);
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-left: 5px solid var(--red);
+  overflow: hidden;
+  right: 20px;
+  animation: comeIn 2s ease;
+}
+
+.borderBottom {
+  height: 5px;
+  background-color: var(--red);
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  animation: timeLeft 6s ease;
+}
+
+.inputCurrentArea {
+  width: 100%;
+}
+.suggestCurrentArea {
+  max-height: 150px;
+  position: absolute;
+  background-color: red;
+  width: 73px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-y: scroll;
+}
+
+@keyframes timeLeft {
+  0% {
+    width: 100%;
+  }
+
+  100% {
+    width: 0%;
+  }
+}
+
+@keyframes comeOut {
+  0% {
+    transform: translateX(-20%);
+  }
+  40% {
+    transform: translateX(20%);
+  }
+  60% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(200%);
+  }
+}
+
+@keyframes comeIn {
+  0% {
+    transform: translateX(200%);
+  }
+  50% {
+    transform: translateX(-20%);
+  }
+  100% {
+    transform: translateX(0%);
+  }
+}
