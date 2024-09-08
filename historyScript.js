@@ -1,12 +1,22 @@
 var Addbtn = document.querySelector(".add");
 var tbody = document.querySelector("tbody");
 
-function MakeRow() {
+async function MakeRow() {
   let createRow = document.createElement("tr");
+
+  let getDevices = await GetOnlyDevices();
+  let getDevicesOption = getDevices
+    .map((device) => `<div class="hide">${device.code}</div>`)
+    .join("");
   createRow.innerHTML = `
         <td style="width: 30px;"></td>
         <td style="width: 100px;"><input type="date"></td>
-        <td style="width: 120px;"><textarea></textarea></td>
+        <td style="width: 120px;" class="currentArea">
+            <input type="text" class="inputCurrentArea">
+            <div class="suggestCurrentArea">
+              ${getDevicesOption}
+            </div>
+        </td>
         <td style="width: 115px;"><textarea></textarea></td>
         <td style="width: 115px;"><textarea></textarea></td>
         <td style="width: 230px;"><textarea></textarea></td>
@@ -19,6 +29,8 @@ function MakeRow() {
   deleteClick(createRow);
   addNewRow(createRow);
   deleteFetch(createRow);
+  console.log(createRow.querySelector(".inputCurrentArea"));
+  addDevicesToCurrentDevice(createRow.querySelector(".inputCurrentArea"));
 }
 
 //Click Dong y(Chỉ hiện thị ở phần ngoài màn hình)
@@ -28,7 +40,7 @@ function agreeClick(createRow) {
   let td = createRow.querySelectorAll("td");
 
   let date = createRow.querySelector("td:nth-of-type(2) input");
-  let code = createRow.querySelector("td:nth-of-type(3) textarea");
+  let code = createRow.querySelector("td:nth-of-type(3) input");
   let personLend = createRow.querySelector("td:nth-of-type(4) textarea");
   let personReceive = createRow.querySelector("td:nth-of-type(5) textarea");
   let currentArea = createRow.querySelector("td:nth-of-type(6) textarea");
@@ -147,7 +159,6 @@ async function addNewRow(createRow) {
   deleteFetch(createRow);
 }
 
-//DeleteFetch chưa xong
 async function deleteFetch(createRow) {
   let deleteBtn = createRow.querySelector("th .delete");
   deleteBtn.addEventListener("click", async function () {
@@ -189,4 +200,50 @@ document.addEventListener("DOMContentLoaded", function () {
     .catch((error) => console.error("Error:", error));
 });
 
-//Lỗi chưa thể xóa được dữ liệu sau khi load lại trang
+async function GetOnlyDevices() {
+  const response = await fetch("http://localhost:8080/devices/only-codes", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  const data = await response.json();
+  return data;
+}
+
+//
+function chooseArea(input, item) {
+  item.addEventListener("click", function () {
+    input.value = item.innerText;
+    item.classList.add("hide");
+    item.parentElement.classList.add("hide");
+  });
+}
+
+function addDevicesToCurrentDevice(input) {
+  let suggests = input.parentElement
+    .querySelector(".suggestCurrentArea")
+    .querySelectorAll("div");
+  input.addEventListener("input", function (e) {
+    if (e.target.value.trim() === "") {
+      suggests.forEach((item) => {
+        item.classList.add("hide");
+      });
+    } else {
+      suggests.forEach((item) => {
+        console.log(item);
+        if (
+          item.innerText
+            .toUpperCase()
+            .includes(e.target.value.trim().toUpperCase())
+        ) {
+          item.classList.remove("hide");
+          item.parentElement.classList.remove("hide");
+          chooseArea(input, item);
+        } else {
+          item.classList.add("hide");
+        }
+      });
+    }
+  });
+}

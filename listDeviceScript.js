@@ -3,9 +3,15 @@ var tbody = document.querySelector("tbody");
 
 var listAreaValue = [];
 
-//lỗi có cách nào để lấy giá trị
-function MakeRow() {
+async function MakeRow() {
   let createRow = document.createElement("tr");
+
+  let areas = await getOnlyArea();
+  console.log(areas);
+  let areasOption = areas
+    .map((area) => `<div class="hide">${area.area}</div>`)
+    .join("");
+
   createRow.innerHTML = `
         <td style="width: 30px;"></td>
         <td style="width: 120px;"><textarea></textarea></td>
@@ -19,19 +25,25 @@ function MakeRow() {
                 <option value="1">Hoạt động</option>
                 <option value="0">Không hoạt động</option>
             </select></td>
-        <td style="width: 90px;">
-          <textarea class="inputCurrentArea"></textarea>
-          <div class="suggestCurrentArea"></div>
+        <td style="width: 90px;" class="currentArea">
+          <input type="text" class="inputCurrentArea">
+            <div class="suggestCurrentArea">
+              ${areasOption}
+            </div>
         </td>
         <th><button class="btn btn-outline-warning d-none edit"><i class="fa-regular fa-pen-to-square"></i> Sửa</button>
             <button class="btn btn-outline-success agree"><i class="fa-solid fa-check"></i> Đồng ý</button>
             <button class="btn btn-outline-danger delete"><i class="fa-solid fa-trash"></i> Xóa</button>
         </th>`;
+
   tbody.appendChild(createRow);
   btnEditClicklistDevice(createRow);
   btnAcceptClicklistDevice(createRow);
   btnDeleteClick(createRow);
   addNewRow(createRow);
+  addAreasToCurrentArea(
+    createRow.querySelector(".currentArea").querySelector(".inputCurrentArea")
+  );
 }
 
 function createAlert(message) {
@@ -65,8 +77,13 @@ function btnDeleteClick(createRow) {
 }
 
 //Thay đổi 1 chút btnEditClick để phù hợp
-function btnEditClicklistDevice(newRow) {
+async function btnEditClicklistDevice(newRow) {
   //Click Edit
+  let areas = await getOnlyArea();
+  let areasOption = areas
+    .map((area) => `<div class="hide">${area.area}</div>`)
+    .join("");
+
   let editBtn = newRow.querySelector(".edit");
   editBtn.addEventListener("click", function () {
     this.classList.add("d-none");
@@ -109,7 +126,7 @@ function btnEditClicklistDevice(newRow) {
       </select>`;
     }
 
-    code.innerHTML = `<textarea name="" id="">${codeValue}</textarea>`;
+    // code.innerHTML = `<textarea name="" id="">${codeValue}</textarea>`;
     type.innerHTML = `<textarea name="" id="">${typeValue}</textarea>`;
     serial.innerHTML = `<textarea name="" id="">${serialValue}</textarea>`;
     imei.innerHTML = `<textarea name="" id="">${imeiValue}</textarea>`;
@@ -117,7 +134,11 @@ function btnEditClicklistDevice(newRow) {
     mac.innerHTML = `<textarea name="" id="">${macValue}</textarea>`;
     status.innerHTML = statusString;
 
-    currentArea.innerHTML = `<textarea name="" id="">${currentAreaValue}</textarea>`;
+    currentArea.innerHTML = `<input type="text" class="inputCurrentArea" value="${currentAreaValue}"> 
+                            <div class="suggestCurrentArea">
+                               ${areasOption}
+                            </div>`;
+    addAreasToCurrentArea(currentArea.querySelector("input"));
   });
 }
 
@@ -213,14 +234,14 @@ async function Update(id) {
     const deviceInfo = document.querySelector(`.deviceID${id}`).parentElement;
 
     const data = {
-      code: deviceInfo.querySelector("td:nth-of-type(2) textarea").value,
+      code: deviceInfo.querySelector("td:nth-of-type(2)").innerText,
       type: deviceInfo.querySelector("td:nth-of-type(3) textarea").value,
       serial: deviceInfo.querySelector("td:nth-of-type(4) textarea").value,
       imei: deviceInfo.querySelector("td:nth-of-type(5) textarea").value,
       purchaseDate: deviceInfo.querySelector("td:nth-of-type(6) input").value,
       mac: deviceInfo.querySelector("td:nth-of-type(7) textarea").value,
       status: deviceInfo.querySelector("td:nth-of-type(8) select").value,
-      currentArea: deviceInfo.querySelector("td:nth-of-type(9) textarea").value,
+      currentArea: deviceInfo.querySelector("td:nth-of-type(9) input").value,
     };
     const response = await fetch(`http://localhost:8080/devices/${id}`, {
       method: "PUT",
@@ -302,9 +323,14 @@ async function addNewRow(createRow) {
           LoadDataWrong(createRow, deviceData);
           console.log("Lỗi 5000");
           createRow.remove();
+          //
         } else if (result.code === 5001) {
+          const deviceData = await GetOneDevice(id);
+          createAlert(result.message);
+          LoadDataWrong(createRow, deviceData);
           console.log("Lỗi 5001");
           createRow.remove();
+          //
         } else {
           idCell.innerHTML = result.result.id;
           idCell.classList.add(`deviceID${result.result.id}`);
@@ -381,4 +407,48 @@ async function GetOneDevice(id) {
   return data;
 }
 
-//VẪN CÓ LỖI CHỖ UPDATE CÓ LẼ LÀ KHÔNG TÌM THẤY ID
+async function getOnlyArea() {
+  const response = await fetch("http://localhost:8080/areas/only-areas", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  const data = await response.json();
+  return data;
+}
+
+function chooseArea(input, item) {
+  item.addEventListener("click", function () {
+    input.value = item.innerText;
+    item.classList.add("hide");
+    item.parentElement.classList.add("hide");
+  });
+}
+
+function addAreasToCurrentArea(input) {
+  let suggests = input.parentElement
+    .querySelector(".suggestCurrentArea")
+    .querySelectorAll("div");
+  input.addEventListener("input", function (e) {
+    if (e.target.value.trim() === "") {
+      suggests.forEach((item) => {
+        item.classList.add("hide");
+      });
+    } else {
+      suggests.forEach((item) => {
+        if (
+          item.innerText
+            .toUpperCase()
+            .includes(e.target.value.trim().toUpperCase())
+        ) {
+          item.classList.remove("hide");
+          item.parentElement.classList.remove("hide");
+          chooseArea(input, item);
+        } else {
+          item.classList.add("hide");
+        }
+      });
+    }
+  });
+}

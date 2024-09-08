@@ -1,23 +1,49 @@
-*{
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-body{
-    height: 100vh;
-    background: linear-gradient(30deg, #c5e9246e, #0be9b196);
+body {
+  height: 100vh;
+  background: linear-gradient(30deg, #c5e9246e, #0be9b196);
 }
 
-textarea{
-    width: 100%;
-    border: none;
-    outline: none;
-    height: 100%;
-    background: rgba(9, 214, 136, 0.288);
+textarea {
+  width: 100%;
+  border: none;
+  outline: none;
+  height: 100%;
+  background: rgba(9, 214, 136, 0.288);
 }
 
-td{
-    overflow-wrap: break-word; 
-    word-wrap: break-word; 
+td {
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+}
+
+.inputCurrentArea {
+  width: 100%;
+}
+.suggestCurrentArea {
+  max-height: 150px;
+  position: absolute;
+  background: linear-gradient(30deg, #c5e9246e, #0be9b196);
+  width: 73px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-y: scroll;
+}
+
+.hide {
+  display: none;
+}
+
+.suggestCurrentArea div {
+  width: 100%;
+  text-align: center;
+}
+.suggestCurrentArea div:hover {
+  background-color: greenyellow;
 }
