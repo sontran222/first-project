@@ -21,8 +21,8 @@ async function MakeRow() {
         <td style="width: 115px;"><textarea></textarea></td>
         <td style="width: 230px;"><textarea></textarea></td>
         <td style="width: 260px;"><textarea></textarea></td>
-        <th><button class="btn btn-outline-success agree"><i class="fa-solid fa-check"></i> Dong y</button>
-            <button class="btn btn-outline-danger delete"><i class="fa-solid fa-trash"></i> Xoa</button>
+        <th><button class="btn btn-outline-success agree"><i class="fa-solid fa-check"></i> Đồng ý</button>
+            <button class="btn btn-outline-danger delete"><i class="fa-solid fa-trash"></i> Xóa</button>
         </th>`;
   tbody.appendChild(createRow);
   agreeClick(createRow);
@@ -190,7 +190,7 @@ document.addEventListener("DOMContentLoaded", function () {
           <td style="width: 230px;">${item.note}</td>
           <td style="width: 260px;">${item.currentArea}</td>
           <th>
-              <button class="btn btn-outline-danger delete"><i class="fa-solid fa-trash"></i> Xoa</button>
+              <button class="btn btn-outline-danger delete"><i class="fa-solid fa-trash"></i> Xóa</button>
           </th>`;
         tbody.appendChild(newRow);
         deleteFetch(newRow);

@@ -172,9 +172,9 @@ function btnAcceptClicklistDevice(createRow) {
   });
 }
 
-// Đổ dữ liệu
-document.addEventListener("DOMContentLoaded", function () {
-  fetch("http://localhost:8080/devices")
+function LoadTablePage(idPageNumber) {
+  tbody.innerHTML = ``;
+  fetch(`http://localhost:8080/devices/tableSplit/${idPageNumber}`)
     .then((response) => response.json())
     .then((data) => {
       data.forEach((item) => {
@@ -186,19 +186,20 @@ document.addEventListener("DOMContentLoaded", function () {
         }
         var newRow = document.createElement("tr");
         newRow.innerHTML = `
-                <td style="width: 30px;" class="deviceID${item.id}">${item.id}</td>
-                <td style="width: 120px;">${item.code}</td>
-                <td style="width: 75px;">${item.type}</td>
-                <td style="width: 140px;">${item.serial}</td>
-                <td style="width: 160px;">${item.imei}</td>
-                <td style="width: 120px;">${item.purchaseDate}</td>
-                <td style="width: 140px;">${item.mac}</td>
-                <td style="width: 140px;">${statusString}</td>
-                <td style="width: 90px;">${item.currentArea}</td>
-                <th><button class="btn btn-outline-warning edit"><i class="fa-regular fa-pen-to-square"></i> Sua</button>
-                    <button class="btn btn-outline-success d-none agree" onclick="Update(${item.id})"><i class="fa-solid fa-check"></i> Dong y</button>
-                    <button class="btn btn-outline-danger delete" onclick="DeleteDevice(${item.id})"><i class="fa-solid fa-trash"></i> Xoa</button>
-                </th>`;
+                  <td style="width: 30px;" class="deviceID${item.id}">${item.id}</td>
+                  <td style="width: 120px;">${item.code}</td>
+                  <td style="width: 75px;">${item.type}</td>
+                  <td style="width: 140px;">${item.serial}</td>
+                  <td style="width: 160px;">${item.imei}</td>
+                  <td style="width: 120px;">${item.purchaseDate}</td>
+                  <td style="width: 140px;">${item.mac}</td>
+                  <td style="width: 140px;">${statusString}</td>
+                  <td style="width: 90px;">${item.currentArea}</td>
+                  <th><button class="btn btn-outline-warning edit"><i class="fa-regular fa-pen-to-square"></i> Sửa</button>
+                      <button class="btn btn-outline-success d-none agree" onclick="Update(${item.id})"><i class="fa-solid fa-check"></i> Đồng ý</button>
+                      <button class="btn btn-outline-danger delete" onclick="DeleteDevice(${item.id})"><i class="fa-solid fa-trash"></i> Xóa</button>
+                  </th>`;
+
         tbody.appendChild(newRow);
         btnEditClicklistDevice(newRow);
         btnAcceptClicklistDevice(newRow);
@@ -206,8 +207,35 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     })
     .catch((error) => console.error("Error:", error));
-});
+}
 
+//Làm 2 việc: Tạo phân trang sau đó click
+//hàm vẫn chưa chạy
+document.addEventListener("DOMContentLoaded", function () {
+  var PageNumber = document.querySelector(".PageNumber");
+  fetch("http://localhost:8080/devices/tableSplit")
+    .then((response) => response.json())
+    .then((data) => {
+      LoadTablePage(data);
+
+      for (let i = 1; i <= data; i++) {
+        let spanPageNumber = document.createElement("span");
+        spanPageNumber.innerText = i;
+
+        var allSpanPageNumber = document.querySelectorAll(".PageNumber span");
+        allSpanPageNumber.forEach((item) => {
+          item.addEventListener("click", function (e) {
+            LoadTablePage(e.target.innerText);
+            allSpanPageNumber.forEach((itemChild) =>
+              itemChild.classList.remove("active")
+            );
+            item.classList.add("active");
+          });
+        });
+        PageNumber.appendChild(spanPageNumber);
+      }
+    });
+});
 function LoadDataWrong(deviceInfo, data) {
   let id = deviceInfo.querySelector("td:first-of-type");
   let code = deviceInfo.querySelector("td:nth-of-type(2)");

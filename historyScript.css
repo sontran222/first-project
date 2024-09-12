@@ -1,0 +1,17 @@
+.PageNumber {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.PageNumber span {
+  padding: 7px 10px;
+  margin: 0 10px;
+  border: none;
+  background: rgb(0, 252, 193);
+  cursor: pointer;
+  transform: translateY(-10px);
+  border-radius: 5px;
+  font-weight: 600;
+}
