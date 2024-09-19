@@ -17,7 +17,7 @@ async function MakeRow() {
         <td style="width: 120px;"><textarea></textarea></td>
         <td style="width: 75px;"><textarea></textarea></td>
         <td style="width: 140px;"><textarea></textarea></td>
-        <td style="width: 160px;"><textarea></textarea></td>
+        <td style="width: 140px;"><textarea></textarea></td>
         <td style="width: 120px;"><input type="date"></td>
         <td style="width: 140px;"><textarea></textarea></td>
         <td style="width: 140px;">
@@ -190,7 +190,7 @@ function LoadTablePage(idPageNumber) {
                   <td style="width: 120px;">${item.code}</td>
                   <td style="width: 75px;">${item.type}</td>
                   <td style="width: 140px;">${item.serial}</td>
-                  <td style="width: 160px;">${item.imei}</td>
+                  <td style="width: 140px;">${item.imei}</td>
                   <td style="width: 120px;">${item.purchaseDate}</td>
                   <td style="width: 140px;">${item.mac}</td>
                   <td style="width: 140px;">${statusString}</td>
@@ -210,7 +210,6 @@ function LoadTablePage(idPageNumber) {
 }
 
 //Làm 2 việc: Tạo phân trang sau đó click
-//hàm vẫn chưa chạy
 document.addEventListener("DOMContentLoaded", function () {
   var PageNumber = document.querySelector(".PageNumber");
   fetch("http://localhost:8080/devices/tableSplit")
@@ -221,19 +220,22 @@ document.addEventListener("DOMContentLoaded", function () {
       for (let i = 1; i <= data; i++) {
         let spanPageNumber = document.createElement("span");
         spanPageNumber.innerText = i;
-
-        var allSpanPageNumber = document.querySelectorAll(".PageNumber span");
-        allSpanPageNumber.forEach((item) => {
-          item.addEventListener("click", function (e) {
-            LoadTablePage(e.target.innerText);
-            allSpanPageNumber.forEach((itemChild) =>
-              itemChild.classList.remove("active")
-            );
-            item.classList.add("active");
-          });
-        });
         PageNumber.appendChild(spanPageNumber);
       }
+      var allSpanPageNumber = document.querySelectorAll(".PageNumber span");
+      var lastIndex = data - 1;
+      allSpanPageNumber[lastIndex].classList.add("active");
+      allSpanPageNumber.forEach((item, index) => {
+        item.addEventListener("click", function (e) {
+          LoadTablePage(e.target.innerText);
+          this.classList.add("active");
+          if (lastIndex != index) {
+            allSpanPageNumber[lastIndex].classList.remove("active");
+          }
+
+          lastIndex = index;
+        });
+      });
     });
 });
 function LoadDataWrong(deviceInfo, data) {
@@ -332,7 +334,6 @@ async function addNewRow(createRow) {
     };
 
     if (!id) {
-      // Check if ID is empty
       try {
         const response = await fetch(`http://localhost:8080/devices`, {
           method: "POST",
