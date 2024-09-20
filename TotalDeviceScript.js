@@ -33,7 +33,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   let areas = document.querySelector("tbody").querySelectorAll(".area");
   dataCount.forEach((count) => {
     areas.forEach((area) => {
-      if (area.innerText == count.area) {
+      if (area.innerText.toLowerCase() == count.area.toLowerCase()) {
         let tablet = area.parentElement.querySelector(".tablet");
         tablet.innerText = count.tablet;
         let brc = area.parentElement.querySelector(".barcode");
