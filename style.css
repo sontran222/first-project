@@ -25,7 +25,7 @@ td {
 .inputCurrentArea {
   width: inherit;
 }
-.suggestCurrentArea {
+.suggest {
   max-height: 150px;
   position: absolute;
   background: linear-gradient(30deg, #c5e9246e, #0be9b196);
@@ -40,11 +40,11 @@ td {
   display: none;
 }
 
-.suggestCurrentArea div {
+.suggest div {
   width: 100%;
   text-align: center;
 }
-.suggestCurrentArea div:hover {
+.suggest div:hover {
   background-color: greenyellow;
 }
 

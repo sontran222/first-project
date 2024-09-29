@@ -1,21 +1,28 @@
 var addBtn = document.querySelector(".add");
 var tbody = document.querySelector("tbody");
-
 var listAreaValue = [];
 
+//Bấm sửa vẫn chưa cập nhật lại
 async function MakeRow() {
   let createRow = document.createElement("tr");
 
   let areas = await getOnlyArea();
-  console.log(areas);
   let areasOption = areas
     .map((area) => `<div class="hide">${area.area}</div>`)
     .join("");
-
+  let deviceName = ["tablet", "Barcode"];
+  let deviceOption = deviceName
+    .map((device) => `<div class="hide">${device}</div>`)
+    .join("");
   createRow.innerHTML = `
         <td style="width: 30px;"></td>
         <td style="width: 120px;"><textarea></textarea></td>
-        <td style="width: 75px;"><textarea></textarea></td>
+        <td style="width: 90px;">
+            <select id="statusDevice">
+                <option value="Tablet">Tablet</option>
+                <option value="Barcode">Barcode</option>
+            </select>
+        </td>
         <td style="width: 140px;"><textarea></textarea></td>
         <td style="width: 140px;"><textarea></textarea></td>
         <td style="width: 120px;"><input type="date"></td>
@@ -27,10 +34,11 @@ async function MakeRow() {
             </select></td>
         <td style="width: 90px;" class="currentArea">
           <input type="text" class="inputCurrentArea">
-            <div class="suggestCurrentArea">
+            <div class="suggest">
               ${areasOption}
             </div>
         </td>
+        <td style"width: 170px"><textarea></textarea></td>
         <th><button class="btn btn-outline-warning d-none edit"><i class="fa-regular fa-pen-to-square"></i> Sửa</button>
             <button class="btn btn-outline-success agree"><i class="fa-solid fa-check"></i> Đồng ý</button>
             <button class="btn btn-outline-danger delete"><i class="fa-solid fa-trash"></i> Xóa</button>
@@ -90,8 +98,8 @@ async function btnEditClicklistDevice(newRow) {
     this.parentElement.querySelector(".agree").classList.remove("d-none");
     let code =
       this.parentElement.parentElement.querySelector("td:nth-of-type(2)");
-    let type =
-      this.parentElement.parentElement.querySelector("td:nth-of-type(3)");
+    // let type =
+    //   this.parentElement.parentElement.querySelector("td:nth-of-type(3)");
     let serial =
       this.parentElement.parentElement.querySelector("td:nth-of-type(4)");
     let imei =
@@ -104,16 +112,18 @@ async function btnEditClicklistDevice(newRow) {
       this.parentElement.parentElement.querySelector("td:nth-of-type(8)");
     let currentArea =
       this.parentElement.parentElement.querySelector("td:nth-of-type(9)");
-
+    let note =
+      this.parentElement.parentElement.querySelector("td:nth-of-type(10)");
     let codeValue = code.innerText;
-    let typeValue = type.innerText;
+    let typeString;
     let serialValue = serial.innerText;
     let imeiValue = imei.innerText;
     let purchaseDateValue = purchaseDate.textContent;
     let macValue = mac.innerText;
-    let statusValue = status.innerText;
     let currentAreaValue = currentArea.innerText;
     let statusString;
+    let noteValue = note.innerText;
+
     if (status.innerText == "Không hoạt động") {
       statusString = `<select id="status">
                         <option value="0">Không hoạt động</option>
@@ -126,16 +136,16 @@ async function btnEditClicklistDevice(newRow) {
       </select>`;
     }
 
-    // code.innerHTML = `<textarea name="" id="">${codeValue}</textarea>`;
-    type.innerHTML = `<textarea name="" id="">${typeValue}</textarea>`;
-    serial.innerHTML = `<textarea name="" id="">${serialValue}</textarea>`;
-    imei.innerHTML = `<textarea name="" id="">${imeiValue}</textarea>`;
-    purchaseDate.innerHTML = `<input type = "date" value="${purchaseDateValue}">`;
-    mac.innerHTML = `<textarea name="" id="">${macValue}</textarea>`;
+    // type.innerHTML = typeString;
+    serial.innerText = serialValue;
+    imei.innerHTML = imeiValue;
+    purchaseDate.innerHTML = purchaseDateValue;
+    mac.innerHTML = macValue;
     status.innerHTML = statusString;
+    note.innerHTML = `<textarea>${noteValue}</textarea>`;
 
     currentArea.innerHTML = `<input type="text" class="inputCurrentArea" value="${currentAreaValue}"> 
-                            <div class="suggestCurrentArea">
+                            <div class="suggest">
                                ${areasOption}
                             </div>`;
     addAreasToCurrentArea(currentArea.querySelector("input"));
@@ -167,6 +177,13 @@ function btnAcceptClicklistDevice(createRow) {
         } else {
           PerElement.innerHTML = "Hoạt động";
         }
+      } else if (PerElement.querySelector("#statusDevice")) {
+        let selectValue = PerElement.querySelector("#statusDevice");
+        if (selectValue.value == "Tablet") {
+          PerElement.innerHTML = "Tablet";
+        } else {
+          PerElement.innerHTML = "Barcode";
+        }
       }
     });
   });
@@ -188,13 +205,14 @@ function LoadTablePage(idPageNumber) {
         newRow.innerHTML = `
                   <td style="width: 30px;" class="deviceID${item.id}">${item.id}</td>
                   <td style="width: 120px;">${item.code}</td>
-                  <td style="width: 75px;">${item.type}</td>
+                  <td style="width: 90px;">${item.type}</td>
                   <td style="width: 140px;">${item.serial}</td>
                   <td style="width: 140px;">${item.imei}</td>
                   <td style="width: 120px;">${item.purchaseDate}</td>
                   <td style="width: 140px;">${item.mac}</td>
                   <td style="width: 140px;">${statusString}</td>
                   <td style="width: 90px;">${item.currentArea}</td>
+                  <td style="width: 170px">${item.note}</td>
                   <th><button class="btn btn-outline-warning edit"><i class="fa-regular fa-pen-to-square"></i> Sửa</button>
                       <button class="btn btn-outline-success d-none agree" onclick="Update(${item.id})"><i class="fa-solid fa-check"></i> Đồng ý</button>
                       <button class="btn btn-outline-danger delete" onclick="DeleteDevice(${item.id})"><i class="fa-solid fa-trash"></i> Xóa</button>
@@ -205,10 +223,8 @@ function LoadTablePage(idPageNumber) {
         btnAcceptClicklistDevice(newRow);
         btnDeleteClick(newRow);
       });
-    })
-    .catch((error) => console.error("Error:", error));
+    });
 }
-
 //Làm 2 việc: Tạo phân trang sau đó click
 document.addEventListener("DOMContentLoaded", function () {
   var PageNumber = document.querySelector(".PageNumber");
@@ -248,6 +264,7 @@ function LoadDataWrong(deviceInfo, data) {
   let mac = deviceInfo.querySelector("td:nth-of-type(7)");
   let status = deviceInfo.querySelector("td:nth-of-type(8)");
   let currentArea = deviceInfo.querySelector("td:nth-of-type(9)");
+  let note = deviceInfo.querySelector("td:nth-of-type(10)");
   code.innerText = data.code;
   type.innerText = data.type;
   serial.innerText = data.serial;
@@ -256,22 +273,31 @@ function LoadDataWrong(deviceInfo, data) {
   mac.innerText = data.mac;
   status.innerText = data.status;
   currentArea.innerText = data.currentArea;
+  note.innerText = data.note;
 }
 
 //Update dữ liệu cột
 async function Update(id) {
   try {
     const deviceInfo = document.querySelector(`.deviceID${id}`).parentElement;
-
+    let code = deviceInfo.querySelector("td:nth-of-type(2)").innerText;
+    let type = deviceInfo.querySelector("td:nth-of-type(3)").innerText;
+    let serial = deviceInfo.querySelector("td:nth-of-type(4)").innerText;
+    let imei = deviceInfo.querySelector("td:nth-of-type(5)").innerText;
+    let mac = deviceInfo.querySelector("td:nth-of-type(7)").innerText;
+    let status = deviceInfo.querySelector("td:nth-of-type(8) select").value;
+    let currentArea = deviceInfo.querySelector("td:nth-of-type(9) input").value;
+    let note = deviceInfo.querySelector("td:nth-of-type(10) textarea").value;
+    console.log(status, note, currentArea);
     const data = {
-      code: deviceInfo.querySelector("td:nth-of-type(2)").innerText,
-      type: deviceInfo.querySelector("td:nth-of-type(3) textarea").value,
-      serial: deviceInfo.querySelector("td:nth-of-type(4) textarea").value,
-      imei: deviceInfo.querySelector("td:nth-of-type(5) textarea").value,
-      purchaseDate: deviceInfo.querySelector("td:nth-of-type(6) input").value,
-      mac: deviceInfo.querySelector("td:nth-of-type(7) textarea").value,
-      status: deviceInfo.querySelector("td:nth-of-type(8) select").value,
-      currentArea: deviceInfo.querySelector("td:nth-of-type(9) input").value,
+      code: code,
+      type: type,
+      serial: serial,
+      imei: imei,
+      mac: mac,
+      status: status,
+      currentArea: currentArea,
+      note: note,
     };
     const response = await fetch(`http://localhost:8080/devices/${id}`, {
       method: "PUT",
@@ -282,7 +308,6 @@ async function Update(id) {
     });
 
     const result = await response.json();
-    console.log(result);
     if (result.code == 5000) {
       console.log("không bấm được button 5000");
     } else if (result.code == 5001) {
@@ -316,6 +341,7 @@ async function addNewRow(createRow) {
     let mac = createRow.querySelector("td:nth-of-type(7)").innerText;
     let status = createRow.querySelector("td:nth-of-type(8)").innerText;
     let currentArea = createRow.querySelector("td:nth-of-type(9)").innerText;
+    let note = createRow.querySelector("td:nth-of-type(10)").innerText;
     let statusValue;
     if (status == "Không hoạt động") {
       statusValue = 0;
@@ -331,6 +357,7 @@ async function addNewRow(createRow) {
       mac: mac,
       status: statusValue,
       currentArea: currentArea,
+      note: note,
     };
 
     if (!id) {
@@ -350,14 +377,12 @@ async function addNewRow(createRow) {
           const deviceData = await GetOneDevice(id);
           createAlert(result.message);
           LoadDataWrong(createRow, deviceData);
-          console.log("Lỗi 5000");
           createRow.remove();
           //
         } else if (result.code === 5001) {
           const deviceData = await GetOneDevice(id);
           createAlert(result.message);
           LoadDataWrong(createRow, deviceData);
-          console.log("Lỗi 5001");
           createRow.remove();
           //
         } else {
@@ -392,8 +417,8 @@ async function addNewRow(createRow) {
           LoadDataWrong(createRow, deviceData);
           console.log("Lỗi 5001");
         } else {
-          idCell.innerHTML = result.result.id;
-          idCell.classList.add(`deviceID${result.result.id}`);
+          idCell.innerHTML = result.id;
+          idCell.classList.add(`deviceID${result.id}`);
         }
       } catch (error) {
         console.error("Error:", error);
@@ -457,7 +482,7 @@ function chooseArea(input, item) {
 
 function addAreasToCurrentArea(input) {
   let suggests = input.parentElement
-    .querySelector(".suggestCurrentArea")
+    .querySelector(".suggest")
     .querySelectorAll("div");
   input.addEventListener("input", function (e) {
     if (e.target.value.trim() === "") {

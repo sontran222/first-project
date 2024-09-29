@@ -3,7 +3,6 @@ var tbody = document.querySelector("tbody");
 
 async function MakeRow() {
   let createRow = document.createElement("tr");
-
   let getDevices = await GetOnlyDevices();
   let GetOnlyArea = await getOnlyArea();
   let getDevicesOption = getDevices
@@ -12,12 +11,13 @@ async function MakeRow() {
   let getAreaOption = GetOnlyArea.map(
     (area) => `<div class="hide">${area.area}</div>`
   ).join("");
+
   createRow.innerHTML = `
         <td style="width: 30px;"></td>
         <td style="width: 100px;"><input type="date"></td>
         <td style="width: 120px;" class="currentArea">
             <input type="text" class="inputCurrentArea">
-            <div class="suggestCurrentArea">
+            <div class="suggest">
               ${getDevicesOption}
             </div>
         </td>
@@ -25,7 +25,7 @@ async function MakeRow() {
         <td style="width: 115px;"><textarea></textarea></td>
         <td style="width: 230px;" class="currentArea">
             <input type="text" class="inputCurrentArea last">
-            <div class="suggestCurrentArea">
+            <div class="suggest">
               ${getAreaOption}
             </div>
         </td>
@@ -40,6 +40,7 @@ async function MakeRow() {
   deleteFetch(createRow);
   addDevicesToCurrentDevice(createRow.querySelector(".inputCurrentArea"));
   addDevicesToCurrentDevice(createRow.querySelector(".inputCurrentArea.last"));
+  // console.log(createRow.querySelector(".inputCurrentArea"));
   changeCurrentArea(createRow.querySelector(".agree"));
 }
 
@@ -47,7 +48,6 @@ async function MakeRow() {
 function agreeClick(createRow) {
   let agreebtn = createRow.querySelector(".agree");
   let td = createRow.querySelectorAll("td");
-
   let date = createRow.querySelector("td:nth-of-type(2) input");
   let code = createRow.querySelector("td:nth-of-type(3) input");
   let personLend = createRow.querySelector("td:nth-of-type(4) textarea");
@@ -93,7 +93,7 @@ async function addNewRow(createRow) {
     let personReceive = createRow.querySelector("td:nth-of-type(5)");
     let currentArea = createRow.querySelector("td:nth-of-type(6)");
     let note = createRow.querySelector("td:nth-of-type(7)");
-
+    console.log("không có gì trống");
     const data = {
       date: date.innerText,
       code: code.innerText,
@@ -102,7 +102,7 @@ async function addNewRow(createRow) {
       note: note.innerText,
       currentArea: currentArea.innerText,
     };
-
+    console.log(data);
     try {
       const response = await fetch(`http://localhost:8080/histories`, {
         method: "POST",
@@ -131,37 +131,44 @@ async function addNewRow(createRow) {
     let personReceive = createRow.querySelector("td:nth-of-type(5)");
     let currentArea = createRow.querySelector("td:nth-of-type(6)");
     let note = createRow.querySelector("td:nth-of-type(7)");
+    if (!code || !personLend || !personReceive || !currentArea) {
+      console.log("có gì đó trống");
+      console.log(code);
+      console.log(personLend);
+      console.log(personReceive);
+      console.log(currentArea);
+    } else {
+      const data = {
+        date: date.innerText,
+        code: code.innerText,
+        personLend: personLend.innerText,
+        personReceive: personReceive.innerText,
+        note: note.innerText,
+        currentArea: currentArea.innerText,
+      };
 
-    const data = {
-      date: date.innerText,
-      code: code.innerText,
-      personLend: personLend.innerText,
-      personReceive: personReceive.innerText,
-      note: note.innerText,
-      currentArea: currentArea.innerText,
-    };
+      try {
+        const response = await fetch(`http://localhost:8080/histories`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        });
 
-    try {
-      const response = await fetch(`http://localhost:8080/histories`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
+        const result = await response.json();
+        let dt = result.result;
 
-      const result = await response.json();
-      let dt = result.result;
-
-      id.innerText = dt.id;
-      date.innerText = dt.date;
-      code.innerText = dt.code;
-      personLend.innerText = dt.personLend;
-      personReceive.innerText = dt.personReceive;
-      note.innerText = dt.note;
-      currentArea.innerText = dt.currentArea;
-    } catch (error) {
-      console.log(error);
+        id.innerText = dt.id;
+        date.innerText = dt.date;
+        code.innerText = dt.code;
+        personLend.innerText = dt.personLend;
+        personReceive.innerText = dt.personReceive;
+        note.innerText = dt.note;
+        currentArea.innerText = dt.currentArea;
+      } catch (error) {
+        console.log(error);
+      }
     }
   });
   deleteFetch(createRow);
@@ -279,9 +286,8 @@ function chooseArea(input, item) {
 }
 
 function addDevicesToCurrentDevice(input) {
-  let suggests = input.parentElement
-    .querySelector(".suggestCurrentArea")
-    .querySelectorAll("div");
+  let parentInput = input.parentElement.querySelector(".suggest");
+  let suggests = parentInput.querySelectorAll("div");
   input.addEventListener("input", function (e) {
     if (e.target.value.trim() === "") {
       suggests.forEach((item) => {
@@ -315,7 +321,6 @@ function changeCurrentArea(button) {
         },
       });
       let isChangeCurrentArea = data;
-      console.log(isChangeCurrentArea);
     } catch (error) {
       console.log(error);
     }
@@ -334,7 +339,6 @@ function returnCurrentArea(code) {
       }
     );
     let isChangeCurrentArea = data;
-    console.log(isChangeCurrentArea);
   } catch (error) {
     console.log(error);
   }
