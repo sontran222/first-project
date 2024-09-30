@@ -40,11 +40,27 @@ async function MakeRow() {
   deleteFetch(createRow);
   addDevicesToCurrentDevice(createRow.querySelector(".inputCurrentArea"));
   addDevicesToCurrentDevice(createRow.querySelector(".inputCurrentArea.last"));
-  // console.log(createRow.querySelector(".inputCurrentArea"));
-  changeCurrentArea(createRow.querySelector(".agree"));
 }
 
-//Click Dong y(Chỉ hiện thị ở phần ngoài màn hình)
+function createAlert(message) {
+  let createPopupAlert = document.createElement("div");
+  createPopupAlert.classList.add("popUp");
+  createPopupAlert.innerHTML = `
+            ${message}
+            <span class="borderBottom"></span>
+  `;
+  let popups = document.querySelector(".popUps");
+  popups.appendChild(createPopupAlert);
+
+  setInterval(function () {
+    createPopupAlert.style.animation = "comeOut 6s ease";
+  }, 8000);
+
+  setInterval(function () {
+    createPopupAlert.remove();
+  }, 12000);
+}
+// //Click Dong y(Chỉ hiện thị ở phần ngoài màn hình)
 function agreeClick(createRow) {
   let agreebtn = createRow.querySelector(".agree");
   let td = createRow.querySelectorAll("td");
@@ -56,15 +72,34 @@ function agreeClick(createRow) {
   let note = createRow.querySelector("td:nth-of-type(7) textarea");
 
   agreebtn.addEventListener("click", function () {
-    td[1].innerText = date.value;
-    td[2].innerText = code.value;
-    td[3].innerText = personLend.value;
-    td[4].innerText = personReceive.value;
-    td[5].innerText = currentArea.value;
-    td[6].innerText = note.value;
-    agreebtn.remove();
-  });
+    if(!code.value || !personLend.value || !personReceive.value || !currentArea.value){
+      if(!code.value){
+        createAlert("không được để trống mã máy")
+      }
+      if(!personLend.value){
+        createAlert("không được để trống người mượn")
+      }
+      if(!personReceive.value){
+        createAlert("không được để trống người nhận")
+      }
+      if(!currentArea.value){
+        createAlert("không được để trống khu vực")
+      }
+    }
+    else{
+      td[1].innerText = date.value;
+      td[2].innerText = code.value;
+      td[3].innerText = personLend.value;
+      td[4].innerText = personReceive.value;
+      td[5].innerText = currentArea.value;
+      td[6].innerText = note.value;
+      agreebtn.remove();
+    }
+    })
+
+
 }
+
 
 //Click chỉ có tác dụng ở ngoài màn hình
 //Không có tác động vào phần backend
@@ -83,61 +118,56 @@ Addbtn.addEventListener("click", function () {
 });
 
 //addNewRow có tương tác với backend tạo ra dòng mới
-async function addNewRow(createRow) {
-  let agreeBtn = createRow.querySelector("th .agree");
-  agreeBtn.addEventListener("click", async function () {
-    let td = createRow.querySelectorAll("td");
-    let date = createRow.querySelector("td:nth-of-type(2)");
-    let code = createRow.querySelector("td:nth-of-type(3)");
-    let personLend = createRow.querySelector("td:nth-of-type(4)");
-    let personReceive = createRow.querySelector("td:nth-of-type(5)");
-    let currentArea = createRow.querySelector("td:nth-of-type(6)");
-    let note = createRow.querySelector("td:nth-of-type(7)");
-    console.log("không có gì trống");
-    const data = {
-      date: date.innerText,
-      code: code.innerText,
-      personLend: personLend.innerText,
-      personReceive: personReceive.innerText,
-      note: note.innerText,
-      currentArea: currentArea.innerText,
-    };
-    console.log(data);
-    try {
-      const response = await fetch(`http://localhost:8080/histories`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
+// async function addNewRow(createRow) {
+  // let agreeBtn = createRow.querySelector("th .agree");
+  // agreeBtn.addEventListener("click", async function () {
+  //   let td = createRow.querySelectorAll("td");
+  //   let date = createRow.querySelector("td:nth-of-type(2)");
+  //   let code = createRow.querySelector("td:nth-of-type(3)");
+  //   let personLend = createRow.querySelector("td:nth-of-type(4)");
+  //   let personReceive = createRow.querySelector("td:nth-of-type(5)");
+  //   let currentArea = createRow.querySelector("td:nth-of-type(6)");
+  //   let note = createRow.querySelector("td:nth-of-type(7)");
+  //   const data = {
+  //     date: date.innerText,
+  //     code: code.innerText,
+  //     personLend: personLend.innerText,
+  //     personReceive: personReceive.innerText,
+  //     note: note.innerText,
+  //     currentArea: currentArea.innerText,
+  //   };
+  //   console.log(data);
+  //   console.log(104)
 
-      const result = await response.json();
-    } catch (error) {
-      console.log(error);
-    }
-  });
-}
+  //   try {
+  //     const response = await fetch(`http://localhost:8080/histories`, {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify(data),
+  //     });
+
+  //     const result = await response.json();
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // });
+// }
+
+
 
 //Thực hiện thêm 1 dòng
 async function addNewRow(createRow) {
   let agreeBtn = createRow.querySelector("th .agree");
+  let id = createRow.querySelector("td:nth-of-type(1)");
+  let date = createRow.querySelector("td:nth-of-type(2)");
+  let code = createRow.querySelector("td:nth-of-type(3)");
+  let personLend = createRow.querySelector("td:nth-of-type(4)");
+  let personReceive = createRow.querySelector("td:nth-of-type(5)");
+  let currentArea = createRow.querySelector("td:nth-of-type(6)");
+  let note = createRow.querySelector("td:nth-of-type(7)");
   agreeBtn.addEventListener("click", async function () {
-    let td = createRow.querySelectorAll("td");
-    let id = createRow.querySelector("td:first-of-type");
-    let date = createRow.querySelector("td:nth-of-type(2)");
-    let code = createRow.querySelector("td:nth-of-type(3)");
-    let personLend = createRow.querySelector("td:nth-of-type(4)");
-    let personReceive = createRow.querySelector("td:nth-of-type(5)");
-    let currentArea = createRow.querySelector("td:nth-of-type(6)");
-    let note = createRow.querySelector("td:nth-of-type(7)");
-    if (!code || !personLend || !personReceive || !currentArea) {
-      console.log("có gì đó trống");
-      console.log(code);
-      console.log(personLend);
-      console.log(personReceive);
-      console.log(currentArea);
-    } else {
       const data = {
         date: date.innerText,
         code: code.innerText,
@@ -146,7 +176,7 @@ async function addNewRow(createRow) {
         note: note.innerText,
         currentArea: currentArea.innerText,
       };
-
+      
       try {
         const response = await fetch(`http://localhost:8080/histories`, {
           method: "POST",
@@ -157,6 +187,7 @@ async function addNewRow(createRow) {
         });
 
         const result = await response.json();
+        console.log(result)
         let dt = result.result;
 
         id.innerText = dt.id;
@@ -169,10 +200,8 @@ async function addNewRow(createRow) {
       } catch (error) {
         console.log(error);
       }
-    }
   });
   deleteFetch(createRow);
-  changeCurrentArea(agreeBtn);
 }
 
 async function deleteFetch(createRow) {
@@ -311,22 +340,6 @@ function addDevicesToCurrentDevice(input) {
   });
 }
 
-function changeCurrentArea(button) {
-  button.addEventListener("click", async function () {
-    try {
-      const data = fetch("http://localhost:8080/histories/changeCurrentArea", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      let isChangeCurrentArea = data;
-    } catch (error) {
-      console.log(error);
-    }
-  });
-}
-
 function returnCurrentArea(code) {
   try {
     const data = fetch(
@@ -338,7 +351,6 @@ function returnCurrentArea(code) {
         },
       }
     );
-    let isChangeCurrentArea = data;
   } catch (error) {
     console.log(error);
   }

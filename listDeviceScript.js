@@ -2,7 +2,7 @@ var addBtn = document.querySelector(".add");
 var tbody = document.querySelector("tbody");
 var listAreaValue = [];
 
-//Bấm sửa vẫn chưa cập nhật lại
+
 async function MakeRow() {
   let createRow = document.createElement("tr");
 
@@ -98,8 +98,6 @@ async function btnEditClicklistDevice(newRow) {
     this.parentElement.querySelector(".agree").classList.remove("d-none");
     let code =
       this.parentElement.parentElement.querySelector("td:nth-of-type(2)");
-    // let type =
-    //   this.parentElement.parentElement.querySelector("td:nth-of-type(3)");
     let serial =
       this.parentElement.parentElement.querySelector("td:nth-of-type(4)");
     let imei =
